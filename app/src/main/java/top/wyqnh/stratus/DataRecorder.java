@@ -14,6 +14,7 @@ import android.util.Log;
 public class DataRecorder extends Service implements SensorEventListener {
     private SensorManager mSensorManager;
     public Sensor mPressure;
+    public Sensor mTemperature;
     private LocationManager mLocationManager;
     public String TAG="DR";
     @Override
@@ -22,13 +23,25 @@ public class DataRecorder extends Service implements SensorEventListener {
         // Get an instance of the sensor service, and use that to get an instance of
         // a particular sensor.
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mTemperature = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE) ;
-
         mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
         mSensorManager.registerListener(this, mPressure, SensorManager.SENSOR_DELAY_NORMAL);
         Log.i("DR","Created");
-    }
 
+        SensorEventListener TemperatureListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                FMC.queue.put("temperature",String.valueOf(sensorEvent.values [0]));
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {
+
+            }
+        };
+        mSensorManager.registerListener(TemperatureListener,mTemperature,SensorManager.SENSOR_DELAY_NORMAL);
+    }
 
     @Override
     public final void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -37,7 +50,8 @@ public class DataRecorder extends Service implements SensorEventListener {
 
     @Override
     public final void onSensorChanged(SensorEvent event) {
-        FMC.pressure=event.values[0];
+        FMC.queue.put("pressure",String.valueOf(event.values [0]));
+
         // Do something with this sensor data.
     }
 

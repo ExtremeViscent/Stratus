@@ -40,12 +40,12 @@ public class FMC extends Service {
      * 定时任务工具类
      */
     public static Timer timer = new Timer();
-    public static float pressure;
 
     private static Context context;
 
     public void onStartCommand()
     {
+
 startLoop();
         Log.i("Loop","Started");
     }
@@ -63,16 +63,14 @@ startLoop();
     }
     public void doReport()
     {
-
-        queue.put("pressure",String.valueOf(pressure));
         Log.i("Fuck","Reported");
-         String url="http://http://118.190.203.180:19132/senduseage.php?";
+         String url="http://118.190.203.180:19132/senduseage.php?";
         OkHttpClient client = new OkHttpClient();
         for(Map.Entry<String, String> entry : queue.entrySet() ) {
             url=url+entry.getKey()+"="+entry.getValue()+"&";
         }
  url=url.substring(0,url.length()-1);
-        Request request= new Request.Builder()
+        final Request request= new Request.Builder()
                 .get()
                 .url(url)
                 .build();
@@ -81,12 +79,13 @@ startLoop();
                 {
                     @Override
                     public void onFailure(Call call, IOException e){
-
+                        Log.i("fuck","f");
+                        Log.i("Fuck",e.toString());
                     }
                     @Override
                     public void onResponse(Call call, Response response)throws IOException{
                         if(response.isSuccessful()){
-
+Log.i("fuck",response.toString());
                         }
                     }
                 }
@@ -95,6 +94,9 @@ startLoop();
     public FMC() {
     }
 public void onCreate(){
+    queue.put("ID","Stratus");
+    queue.put("DEVICE","Nexus AVD");
+    queue.put("ACTION","Loop");
     startLoop();
     Log.i("FMC","lps");
 }
