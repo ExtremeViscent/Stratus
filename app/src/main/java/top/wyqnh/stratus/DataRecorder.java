@@ -37,36 +37,50 @@ public class DataRecorder extends Service implements SensorEventListener {
         // a particular sensor.
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mTemperature = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
         mSensorManager.registerListener(this, mPressure, SensorManager.SENSOR_DELAY_NORMAL);
-        Log.i("DR","Created");
-LocationListener locationListener =new LocationListener() {
-    @Override
-    public void onLocationChanged(Location location) {
-        FMC.queue.put("Longitude",String.valueOf(location.getLongitude() ));
-        FMC.queue.put("Latitude",String.valueOf(location.getLatitude()));
-        FMC.queue.put("Speed",String.valueOf(location.getSpeed()));
-        FMC.queue.put("Bearing",String.valueOf(location.getBearing()));
-        FMC.queue.put("Altitude",String.valueOf(location.getAltitude()));
-    }
+        Log.i("DR", "Created");
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                FMC.queue.put("Longitude", String.valueOf(location.getLongitude()));
+                FMC.queue.put("Latitude", String.valueOf(location.getLatitude()));
+                FMC.queue.put("Speed", String.valueOf(location.getSpeed()));
+                FMC.queue.put("Bearing", String.valueOf(location.getBearing()));
+                FMC.queue.put("Altitude", String.valueOf(location.getAltitude()));
+            }
 
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
 
-    }
+            }
 
-    @Override
-    public void onProviderEnabled(String s) {
+            @Override
+            public void onProviderEnabled(String s) {
 
-    }
+            }
 
-    @Override
-    public void onProviderDisabled(String s) {
+            @Override
+            public void onProviderDisabled(String s) {
 
-    }
-};
-        mLocationManager.requestLocationUpdates(locateType, 100,0,locationListener);
+            }
+        };
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Criteria criteria = new Criteria();
+        String providerName = mLocationManager.getBestProvider(criteria, true /*enabledOnly*/); //criteria不能填null，否则出现异常
+        LocationProvider provider = mLocationManager.getProvider(providerName);
+mLocationManager.requestLocationUpdates(provider.getName(),1000,0,locationListener);
         SensorEventListener TemperatureListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
